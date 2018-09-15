@@ -103,8 +103,8 @@ public:
    */
   void setCenteredWindow(
     const HistogramGrid& grid, 
-    unsigned int robot_x, 
-    unsigned int robot_y);
+    int robot_x, 
+    int robot_y);
 
   /**
    * @brief Increments the obstacle likelihood count at the given index.
@@ -166,7 +166,7 @@ public:
    * @return         The polar histogram at `(robot_x, robot_y)` with `n` 
    *                 sectors.
    */
-  PolarHistogram getPolarHistogram(double robot_x, double robot_y, int n) const;
+  PolarHistogram getPolarHistogram(double robot_x, double robot_y, unsigned int n) const;
 
   /* *
    * [getSectionCount description]

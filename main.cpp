@@ -35,22 +35,12 @@ int main(void)
        5,0,0,0,8,
        0,6,0,7,0;
 
-  h = h.transpose().eval();
-  flipy(h);
 
   // READER, TAKE NOTE!!
   // Read the docs on the getPolarHistogram() method to figure out what I'm 
   // doing here.
-
-  // h now looks like
-  // [ [ 5  10 15 20 25 ]
-  //   [ 4  9  14 19 24 ] 
-  //   [ 3  8  13 18 23 ]
-  //   [ 2  7  12 17 22 ]
-  //   [ 1  6  11 16 21 ] ]
-  
-  // you want h to look like 
-  // [ [  ] ]
+  h = h.transpose().eval();
+  flipy(h);
 
   HistogramGrid h2 = h.getCenteredWindow(2, 2, 3, 3);
   // h2.increment(0, 0);

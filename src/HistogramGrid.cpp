@@ -18,27 +18,48 @@ HistogramGrid HistogramGrid::getCenteredWindow(
   unsigned int width,
   unsigned int height) const
 {
+  // TODO: If the requested window is out-of-bounds, resize the block to 
+  //  the requested size. This ensures that any obstacles that are detected
+  //  that shouldn't be (such as walls) are thrown out.
+  
   if (width % 2 == 0) ++width;
   if (height % 2 == 0) ++height;
 
-  HistogramGrid ret(width, height);
+  HistogramGrid ret(width, height, this->resolution_);
   ret << this->block(robot_x - width/2, robot_y - height/2, width, height);
   return ret;
 }
 
 void HistogramGrid::setCenteredWindow(
   const HistogramGrid& grid, 
-  unsigned int robot_x,
-  unsigned int robot_y)
+  int robot_x,
+  int robot_y)
 {
+  // check to make sure the indices are odd
   if (grid.rows() % 2 == 0 || grid.cols() % 2 == 0)
+  {
     throw std::invalid_argument("This HistogramGrid has even bounds; "
       "it can't be set centered.");
+  }
+
+  // check to make sure the child grid at least overlaps with the parent
+  if (grid.rows()/2 < -robot_x
+    || grid.cols()/2 < -robot_y
+    || robot_x - grid.rows()/2 > this->rows() - 1
+    || robot_y - grid.cols()/2 > this->cols() - 1)
+  {
+    throw std::invalid_argument("This child HistogramGrid lies entirely "
+      "outside of its parent.");
+  }
+
+  int incoming_min_x, incoming_max_x, incoming_min_y, incoming_max_y;
+
+
 
   this->block(
-    robot_x - grid.rows()/2, 
-    robot_y - grid.cols()/2, 
-    grid.rows(), 
+    std::min(std::max(robot_x - grid.rows()/2, static_cast<Eigen::Index>(0)), static_cast<Eigen::Index>(this->cols()-1)),
+    std::min(std::max(robot_y - grid.cols()/2, static_cast<Eigen::Index>(0)), static_cast<Eigen::Index>(this->rows()-1)),
+    grid.rows(),
     grid.cols())
       = grid;
 }
@@ -51,7 +72,7 @@ void HistogramGrid::increment(unsigned int x, unsigned int y)
 PolarHistogram HistogramGrid::getPolarHistogram(
   double robot_x, 
   double robot_y, 
-  int n) const
+  unsigned int n) const
 {
   double alpha = 360.0/static_cast<double>(n);
   PolarHistogram p(n);
