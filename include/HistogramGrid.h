@@ -114,8 +114,9 @@ public:
   void increment(unsigned int x, unsigned int y);
 
   /**
-   * Returns the polar histogram for the robot's given coordinates. The 
-   * histogram is oriented so that the 0 degrees points to the positive row 
+   * @brief Returns the polar histogram for the robot's given coordinates. 
+   * 
+   * The histogram is oriented so that the 0 degrees points to the positive row
    * direction and 90 degrees points in the positive column direction.
    *
    * This is a little awkward to deal with in Eigen's initializer lists: 
@@ -143,15 +144,17 @@ public:
    * 
    * (+z comes out of the screen)
    * 
-   * That being said, you have two choices to lay out your obstacle matrix:
+   * That being said, you have two choices for your layout of your obstacle 
+   * matrix:
    * 1. Look at the comma initializer list sideways (with your head tilted
    *    to the right) and lay out your matrix as if the left edge of the 
    *    list (or the bottom, from your new angle) is the behind of the robot
    * 2. Look at it normally and then "rotate" the matrix values by 90 degrees
-   *    clockwise by first transposing it and then reflecting it over the 
-   *    y-axis, so that the robot (as you see it) has its back to the bottom of
-   *    your screen, and polar histogram will see things the way you see them, 
-   *    after a transformation. e.g. After the above initialization, do this:
+   *    clockwise in code by first transposing it and then reflecting it over 
+   *    the y-axis, so that the robot (as you see it) has its back to the 
+   *    bottom of your screen, and polar histogram will see things the way you
+   *    see them, after a transformation. e.g. After the above initialization, 
+   *    do this:
    * ```
    * h = h.transpose().eval();
    * for (int i = 0; i < h.cols()/2; ++i)

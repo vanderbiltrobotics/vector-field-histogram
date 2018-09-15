@@ -52,16 +52,58 @@ void HistogramGrid::setCenteredWindow(
       "outside of its parent.");
   }
 
-  int incoming_min_x, incoming_max_x, incoming_min_y, incoming_max_y;
 
-
+  // To the guy who reads this: I'm so sorry. This wasn't part of the plan.
+  // Eigen doesn't allow negative indices (like Python) or inferred sizes.
+  // That's why this looks so bad. I swear I didn't do this on purpose.
 
   this->block(
-    std::min(std::max(robot_x - grid.rows()/2, static_cast<Eigen::Index>(0)), static_cast<Eigen::Index>(this->cols()-1)),
-    std::min(std::max(robot_y - grid.cols()/2, static_cast<Eigen::Index>(0)), static_cast<Eigen::Index>(this->rows()-1)),
-    grid.rows(),
-    grid.cols())
-      = grid;
+    std::max(
+      robot_x - grid.rows()/2, 
+      static_cast<Eigen::Index>(0)
+    ),
+    std::max(
+      robot_y - grid.cols()/2,
+      static_cast<Eigen::Index>(0)
+    ),
+    std::min(
+      this->rows() - 1,
+      robot_x + grid.rows()/2
+    ) - std::max(
+      robot_x - grid.rows()/2,
+      static_cast<Eigen::Index>(0)
+    ) + static_cast<Eigen::Index>(1),
+    std::min(
+      this->cols() - 1,
+      robot_y + grid.cols()/2
+    ) - std::max(
+      robot_x - grid.cols()/2,
+      static_cast<Eigen::Index>(0)
+    ) + static_cast<Eigen::Index>(1)
+  ) = grid.block(
+    std::max(
+      grid.rows()/2 - robot_x,
+      static_cast<Eigen::Index>(0)
+    ),
+    std::max(
+      grid.cols()/2 - robot_y,
+      static_cast<Eigen::Index>(0)
+    ),
+    std::min(
+      this->rows() - 1,
+      robot_x + grid.rows()/2
+    ) - std::max(
+      robot_x - grid.rows()/2,
+      static_cast<Eigen::Index>(0)
+    ) + static_cast<Eigen::Index>(1),
+    std::min(
+      this->cols() - 1,
+      robot_y + grid.cols()/2
+    ) - std::max(
+      robot_x - grid.cols()/2,
+      static_cast<Eigen::Index>(0)
+    ) + static_cast<Eigen::Index>(1)
+  );
 }
 
 void HistogramGrid::increment(unsigned int x, unsigned int y)
@@ -91,8 +133,13 @@ PolarHistogram HistogramGrid::getPolarHistogram(
           beta += 2.0*M_PI;
 
         // increment the given angle
-        p[static_cast<int>(std::floor(beta*static_cast<double>(n)/(2.0*M_PI)))]
-          += this->operator()(i,j);
+        p[
+          static_cast<int>(
+            std::floor(
+              beta * static_cast<double>(n) / (2.0 * M_PI)
+            )
+          )
+        ] += this->operator()(i,j);
       }
     }
   }
