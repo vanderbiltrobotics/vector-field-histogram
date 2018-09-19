@@ -52,57 +52,70 @@ void HistogramGrid::setCenteredWindow(
       "outside of its parent.");
   }
 
+  // This is code to cut out the rectangles for the existing sensor field and
+  // the incoming sensor data and place them other one another.
 
   // To the guy who reads this: I'm so sorry. This wasn't part of the plan.
   // Eigen doesn't allow negative indices (like Python) or inferred sizes.
   // That's why this looks so bad. I swear I didn't do this on purpose.
 
+  // This is the x-index of the top-left grid square of the rectangle
+  // formed by the intersection of incoming data rectangle and the field
+  // rectangle, in the field's reference. 
+  Eigen::Index this_first_square_x = std::max(
+    robot_x - grid.rows()/2, 
+    static_cast<Eigen::Index>(0)
+  );
+
+  // This is the y-index.
+  Eigen::Index this_first_square_y = std::max(
+    robot_y - grid.cols()/2,
+    static_cast<Eigen::Index>(0)
+  );
+
+  // This is the x-length of the intersection rectangle.
+  Eigen::Index block_length_x = std::min(
+    this->rows() - 1, 
+    robot_x + grid.rows()/2
+  ) - std::max(
+    robot_x - grid.rows()/2, 
+    static_cast<Eigen::Index>(0)
+  ) + static_cast<Eigen::Index>(1);
+
+  // This is the y-length.
+  Eigen::Index block_length_y = std::min(
+    this->cols() - 1,
+    robot_y + grid.cols()/2
+  ) - std::max(
+    robot_x - grid.cols()/2,
+    static_cast<Eigen::Index>(0)
+  ) + static_cast<Eigen::Index>(1);
+
+
+  // This is the x-index of the top-left grid square of the rectangle
+  // formed by the intersection of incoming data rectangle and the field
+  // rectangle, in the incoming data grid's reference. 
+  Eigen::Index incoming_first_square_x = std::max(
+    grid.rows()/2 - robot_x,
+    static_cast<Eigen::Index>(0)
+  );
+
+  // This is the y-index.
+  Eigen::Index incoming_first_square_y = std::max(
+    grid.cols()/2 - robot_y,
+    static_cast<Eigen::Index>(0)
+  );
+
   this->block(
-    std::max(
-      robot_x - grid.rows()/2, 
-      static_cast<Eigen::Index>(0)
-    ),
-    std::max(
-      robot_y - grid.cols()/2,
-      static_cast<Eigen::Index>(0)
-    ),
-    std::min(
-      this->rows() - 1,
-      robot_x + grid.rows()/2
-    ) - std::max(
-      robot_x - grid.rows()/2,
-      static_cast<Eigen::Index>(0)
-    ) + static_cast<Eigen::Index>(1),
-    std::min(
-      this->cols() - 1,
-      robot_y + grid.cols()/2
-    ) - std::max(
-      robot_x - grid.cols()/2,
-      static_cast<Eigen::Index>(0)
-    ) + static_cast<Eigen::Index>(1)
+    this_first_square_x,
+    this_first_square_y,
+    block_length_x,
+    block_length_y
   ) = grid.block(
-    std::max(
-      grid.rows()/2 - robot_x,
-      static_cast<Eigen::Index>(0)
-    ),
-    std::max(
-      grid.cols()/2 - robot_y,
-      static_cast<Eigen::Index>(0)
-    ),
-    std::min(
-      this->rows() - 1,
-      robot_x + grid.rows()/2
-    ) - std::max(
-      robot_x - grid.rows()/2,
-      static_cast<Eigen::Index>(0)
-    ) + static_cast<Eigen::Index>(1),
-    std::min(
-      this->cols() - 1,
-      robot_y + grid.cols()/2
-    ) - std::max(
-      robot_x - grid.cols()/2,
-      static_cast<Eigen::Index>(0)
-    ) + static_cast<Eigen::Index>(1)
+    incoming_first_square_x,
+    incoming_first_square_y,
+    block_length_x,
+    block_length_y
   );
 }
 
